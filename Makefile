@@ -10,6 +10,13 @@ CC = icc
 export FC
 export CC
 
+MODDIR = .mod
+
+ifneq ($(MODDIR),)
+  $(shell test -d $(MODDIR) || mkdir -p $(MODDIR))
+  FCFLAGS+= -module $(MODDIR)
+endif
+
 # GSL include and library flags
 GSL_INC   = -I${GSL_ROOT}/include
 GSL_LIBS  = -L${GSL_ROOT}/lib 
@@ -50,9 +57,9 @@ OBJECTS = $(GSL_DIR)/special_function_wrapper.o   \
 solver:
 	$(MAKE) -C $(GSL_DIR) gsl_objs
 	$(MAKE) -C $(SRC_DIR) src_objs
-	$(FC) $(COMPFLAGS) -o $(EXEC_NAME) $(OBJECTS) $(LIBRARIES)
+	$(FC) $(COMPFLAGS) $(FCFLAGS) -o $(EXEC_NAME) $(OBJECTS) $(LIBRARIES)
 
 clean:
 	$(MAKE) -C $(GSL_DIR) clean
 	$(MAKE) -C $(SRC_DIR) clean
-	rm $(EXEC_NAME)
+	rm -rf $(EXEC_NAME) .mod

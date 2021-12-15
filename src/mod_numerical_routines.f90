@@ -17,9 +17,10 @@ MODULE mod_numerical_routines
         END FUNCTION
     END INTERFACE
     ABSTRACT INTERFACE
-        FUNCTION root_function(x)
+        FUNCTION root_function(x,z_opt)
             IMPLICIT NONE
             REAL(KIND=8), INTENT(IN) :: x
+            REAL(KIND=8), INTENT(IN), OPTIONAL :: z_opt
             REAL(KIND=8)             :: root_function
         END FUNCTION
     END INTERFACE  
@@ -339,19 +340,44 @@ SUBROUTINE TSOLVE (IL, IU, BB, DD, AA, CC)
     ! SOLUTION STORED IN CC
 END SUBROUTINE TSOLVE
 !=================================================================================
-SUBROUTINE BISECTION_METHOD(fun, x, a, b, tol)
+SUBROUTINE bisection_method(fun, x, a, b, tol, z_opt)
     IMPLICIT NONE
-    REAL(KIND=8), INTENT(INOUT) :: x
-    REAL(KIND=8), INTENT(IN)    :: a
-    REAL(KIND=8), INTENT(IN)    :: b
-    REAL(KIND=8), INTENT(IN)    :: tol
-    PROCEDURE(root_function)    :: fun
+    REAL(KIND=8), INTENT(INOUT)        :: x
+    REAL(KIND=8), INTENT(IN)           :: a
+    REAL(KIND=8), INTENT(IN)           :: b
+    REAL(KIND=8), INTENT(IN)           :: tol
+    REAL(KIND=8), INTENT(IN), OPTIONAL :: z_opt
+    PROCEDURE(root_function)           :: fun
 
     INTEGER                  :: i, j
     REAL(KIND=8)             :: dx, mid, x1, x2, c, prod
 
     x1 = a; x2 = b;
     
+    IF (PRESENT(z_opt)) THEN 
+    
+    DO i = 1, 60
+        mid  = (x1 + x2)/2.d0;
+        prod = fun(x1,z_opt)*fun(mid,z_opt);
+        IF ( prod .LE. 0.d0 ) THEN
+            x2  = mid
+            mid = (x1 + x2)/2.d0
+            dx  = ABS(x2 - x1);
+        ELSE IF ( prod .GT. 0.d0 ) THEN
+            x1  = mid;
+            mid = (x1 + x2)/2.d0;
+            dx  = ABS(x1 - x2);
+        END IF
+        
+        IF ( dx .LE. tol ) THEN
+            EXIT
+        END IF
+    END DO
+
+    x = mid;
+
+    ELSE
+
     DO i = 1, 60
         mid  = (x1 + x2)/2.d0;
         prod = fun(x1)*fun(mid);
@@ -371,7 +397,9 @@ SUBROUTINE BISECTION_METHOD(fun, x, a, b, tol)
     END DO
     
     x = mid;
+    END IF
+
         
-END SUBROUTINE BISECTION_METHOD
+END SUBROUTINE bisection_method
 !=================================================================================
 END MODULE mod_numerical_routines

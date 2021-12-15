@@ -4,8 +4,13 @@
 OBJECTS = special_function_wrapper.o \
 	  special_function_interface.o  \
 
-%.o: %.c; $(CC) $(COMPFLAGS) -c -o $@ $< $(LIBRARIES)
-%.o: %.f90; $(FC) $(COMPFLAGS) -c -o $@ $< $(LIBRARIES)
+CFLAGS = -O2
+
+MODDIR = ../.mod 
+FCFLAGS = -module $(MODDIR) 
+
+%.o: %.c; $(CC) $(CFLAGS) -c -o $@ $< $(LIBRARIES)
+%.o: %.f90; $(FC) $(COMPFLAGS) $(FCFLAGS) -c -o $@ $< $(LIBRARIES)
 
 gsl_objs: $(OBJECTS)
 

@@ -1,13 +1,17 @@
 # Makefile for primary src
 .SUFFIXES:
 
+MODDIR = ../.mod
+
+FCFLAGS = -module $(MODDIR)
+
 # Object list
 OBJECTS = mod_global.o               \
 	  mod_numerical_routines.o   \
 	  mod_io.o                   \
 	  main.o
 
-%.o: %.f90; $(FC) $(COMPFLAGS) -c -o $@ $< $(LIBRARIES)
+%.o: %.f90; $(FC) $(COMPFLAGS) $(FCFLAGS) -c -o $@ $< $(LIBRARIES)
 
 src_objs: $(OBJECTS)
 
