@@ -1,0 +1,20 @@
+# Prerequisites
+*.d
+
+# Object files
+*.o 
+*.obj
+*.elf
+*.mod
+
+# Executables
+*.exe
+
+# Files
+*.pdf
+*.jpeg
+*.jpg
+*.svg
+*.eps
+*.x
+
