@@ -19,7 +19,7 @@ PROGRAM main
     END INTERFACE
     INTEGER :: k
     CHARACTER(LEN=100) :: input_fname    
-    REAL(KIND=8) :: test_val
+    REAL(KIND=8) :: test_val, xx
 
     CALL GET_COMMAND_ARGUMENT(1,input_fname)
     CALL read_input_data(TRIM(input_fname))
@@ -56,16 +56,21 @@ FUNCTION self_induction(kappa)
     REAL(KIND=8) :: a !< Left intial end point for bisection method
     REAL(KIND=8) :: b !< Right intial end point for bisection method
     REAL(KIND=8) :: tol = 1E-16 !< Tolerance for root approximation
-    REAL(KIND=8) :: eps = 1E-10; !< Adjust bessl_root_val by eps
+    REAL(KIND=8) :: eps = 1E-16; !< Adjust bessl_root_val by eps
     REAL(KIND=8) :: bessel_root_val !< clearly indicate root of bessel
     REAL(KIND=8) :: self_induction
+    REAL(KIND=8) :: tiny_eps
     
-    a = 0.01d0; b = 5.d0; ! First root of bessel J in this interval
+    tiny_eps = eps/2.d0;
+    a = tiny_eps; b = 5.d0; ! First root of bessel J in this interval
     CALL bisection_method(bessel_root, x, a, b, tol)
     bessel_root_val = x;
     b = bessel_root_val - eps;
     CALL bisection_method(dispersion, x, a, b, tol, kappa)
     self_induction = ((2*kappa/SQRT(kappa**2 + x**2)) - 1.d0);
+    !IF (kappa .LE. 0.006d0) THEN
+    !    self_induction = self_induction + 1.d0;
+    !END IF
 END FUNCTION self_induction
 !======================================================================
 !======================================================================
@@ -86,6 +91,14 @@ FUNCTION dispersion(beta, kappa)
 
     dispersion = (1.d0/beta)*(J1_p/J1) + K1_p/(kappa*K1) + &
                  SQRT(beta**2 + (kappa)**2)/(kappa*beta**2) 
+  !  IF (kappa .LE. 0.006d0) THEN
+  !      WRITE(*,*) 'K0 =', K0
+  !      WRITE(*,*) 'K1 =', K1
+  !      WRITE(*,*) 'K2 =', K2
+  !      WRITE(*,*) 'J0 =', J0
+  !      WRITE(*,*) 'J1 =', J1
+  !      WRITE(*,*) 'J2 =', J2
+  !  END IF
 END FUNCTION dispersion
 !=======================================================================
 !=======================================================================

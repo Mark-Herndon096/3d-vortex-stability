@@ -4,26 +4,32 @@ clc; clear all; close all;
 dir = '/Users/markherndon/3d-vortex-stability/';
 %fname = sprintf('%sperturbations-1000-001.x',dir);
 fname = sprintf('%somega.x',dir);
-fname2 = sprintf('%somega_10.x',dir);
-fid = fopen(fname2,'r','ieee-le');
-fid2 = fopen(fname2,'r','ieee-le');
+fid = fopen(fname,'r','ieee-le');
+
 
 nk  = fread(fid,1,'int');
 wvs = zeros(nk,1);
 omg = zeros(nk,1);
 
-nk2  = fread(fid2,1,'int');
-wvs2 = zeros(nk2,1);
-omg2 = zeros(nk2,1);
+
 
 a = 0.31;
 
 wvs = fread(fid,nk,'double');
 omg = fread(fid,nk,'double');
 
-wvs2 = fread(fid2,nk2,'double');
-omg2 = fread(fid2,nk2,'double');
 %%
 figure(1)
 plot(wvs(1:1:end),omg(1:1:end),'ko','LineWidth',1.5), hold on
-plot(wvs2,omg2,'r-','LineWidth',1.5)
+plot(wvs,omg,'r-','LineWidth',1.5)
+% 
+% for k = 1:nk
+%     bk0(k,1) = besselk(0,wvs(k));
+%     bk1(k,1) = besselk(1,wvs(k));
+%     bk2(k,1) = besselk(2,wvs(k));
+% end
+% figure(2)
+% plot(wvs,bk0,'r-'), hold on
+% plot(wvs,bk1,'b-'), hold on
+% plot(wvs,bk2,'k-')
+% ylim([-0.5 10])
