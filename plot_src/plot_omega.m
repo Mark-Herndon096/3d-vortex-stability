@@ -20,8 +20,9 @@ omg = fread(fid,nk,'double');
 
 %%
 figure(1)
-plot(wvs(1:1:end),omg(1:1:end),'ko','LineWidth',1.5), hold on
 plot(wvs,omg,'r-','LineWidth',1.5)
+xlim([0 3])
+ylim([0 1])
 % 
 % for k = 1:nk
 %     bk0(k,1) = besselk(0,wvs(k));

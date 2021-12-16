@@ -68,9 +68,6 @@ FUNCTION self_induction(kappa)
     b = bessel_root_val - eps;
     CALL bisection_method(dispersion, x, a, b, tol, kappa)
     self_induction = ((2*kappa/SQRT(kappa**2 + x**2)) - 1.d0);
-    !IF (kappa .LE. 0.006d0) THEN
-    !    self_induction = self_induction + 1.d0;
-    !END IF
 END FUNCTION self_induction
 !======================================================================
 !======================================================================
@@ -91,14 +88,6 @@ FUNCTION dispersion(beta, kappa)
 
     dispersion = (1.d0/beta)*(J1_p/J1) + K1_p/(kappa*K1) + &
                  SQRT(beta**2 + (kappa)**2)/(kappa*beta**2) 
-  !  IF (kappa .LE. 0.006d0) THEN
-  !      WRITE(*,*) 'K0 =', K0
-  !      WRITE(*,*) 'K1 =', K1
-  !      WRITE(*,*) 'K2 =', K2
-  !      WRITE(*,*) 'J0 =', J0
-  !      WRITE(*,*) 'J1 =', J1
-  !      WRITE(*,*) 'J2 =', J2
-  !  END IF
 END FUNCTION dispersion
 !=======================================================================
 !=======================================================================
