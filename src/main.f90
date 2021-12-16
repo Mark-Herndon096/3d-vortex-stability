@@ -28,9 +28,21 @@ PROGRAM main
     END IF
     
     CALL generate_ka_array
-
-    test_val = self_induction(1.d0)    
-
+    
+    !$OMP PARALLEL
+    !$OMP DO    
+    DO k = 1, nk
+        omega_array(k) = self_induction(ka(k))
+    END DO
+    !$OMP END DO
+    !$OMP END PARALLEL
+    
+    OPEN(1,FILE='omega.x',ACTION='WRITE',STATUS='REPLACE',ACCESS='STREAM',FORM='UNFORMATTED')
+    WRITE(1) nk
+    WRITE(1) ka
+    WRITE(1) omega_array
+    CLOSE(1)
+    
 END PROGRAM main
 !======================================================================
 !======================================================================
@@ -43,7 +55,7 @@ FUNCTION self_induction(kappa)
     REAL(KIND=8) :: x !< return value for bisection root finding method
     REAL(KIND=8) :: a !< Left intial end point for bisection method
     REAL(KIND=8) :: b !< Right intial end point for bisection method
-    REAL(KIND=8) :: tol = 1E-14 !< Tolerance for root approximation
+    REAL(KIND=8) :: tol = 1E-16 !< Tolerance for root approximation
     REAL(KIND=8) :: eps = 1E-10; !< Adjust bessl_root_val by eps
     REAL(KIND=8) :: bessel_root_val !< clearly indicate root of bessel
     REAL(KIND=8) :: self_induction

@@ -6,7 +6,7 @@
   dtau  = 0.0005         !< Size of time step
 	nv    = 2              !< # of vortices in real plane
 	nvt   = 2              !< # of vortices in ground-image system
-	nk    = 2000           !< # of wavenumbers   
+	nk    = 800           !< # of wavenumbers   
 	kspan = 5.75           !< Wavenumber span (ka) 
 	ge    = .FALSE.        !< Ground effect logical
 	!ge   = .TRUE.         !< Ground effect logical

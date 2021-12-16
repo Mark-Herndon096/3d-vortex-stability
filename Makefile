@@ -2,7 +2,8 @@
 SRC_DIR = src
 GSL_DIR = GSL_INTERFACE
 # Need to compile GNU scientific library serparately and set path here
-GSL_ROOT = /custom_builds/GSL
+GSL_ROOT = /opt/GSL
+export GSL_ROOT
 # Compiler (ifort, gfortran)
 FC = ifort
 CC = icc
@@ -25,7 +26,7 @@ GSL_FLAGS = ${GSL_INC} ${GSL_LIBS} ${GSL_LD}
 
 # MKL LIBS (set MKL by sourcing intel OneAPI env prior to running Makefile)
 MKL_INC   = -I${MKLROOT}/include/intel64/ilp64 -I"${MKLROOT}/include"
-MKL_LIBS  = -L${MKL_ROOT}/lib/intel64
+MKL_LIBS  = -L${MKLROOT}/lib
 MKL_LD    = -lmkl_blas95_ilp64 -lmkl_lapack95_ilp64 -lmkl_intel_ilp64 \
 	    -lmkl_sequential -lmkl_core -lpthread -lm -ldl
 MKL_FLAGS = ${MKL_INC} ${MKL_LIBS} ${MKL_LD}
