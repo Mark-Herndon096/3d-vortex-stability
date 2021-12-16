@@ -30,8 +30,9 @@ MODULE mod_global
     ! VORTEX POSITION AND PERTURBATION AMPLITUDE ARRAYS
     ! DIMENSION(nvt,nt) --> Ex. y(vortex index, time index) == position
     ! vortex (vortex index) at t = (time index)
-    REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: y    
-    REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: z    
+    !REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: y    
+    !REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: z    
+    REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: yz
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: eta  
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: zeta 
 
@@ -57,6 +58,7 @@ MODULE mod_global
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:) :: tau
 
     ! PROPAGATOR MATRIX
+    REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:)     :: eye
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:)     :: s
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:,:,:) :: phi
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:,:)   :: v
@@ -66,6 +68,13 @@ MODULE mod_global
             REAL(KIND=8), INTENT(IN) :: beta
             REAl(KIND=8)             :: mutual_induction
         END FUNCTION
+    END INTERFACE
+    ABSTRACT INTERFACE
+        FUNCTION self_induction(kappa)
+            IMPLICIT NONE
+            REAL(KIND=8), INTENT(IN) :: kappa
+            REAL(KIND=8)             :: self_induction
+        END FUNCTION self_induction
     END INTERFACE
 
 CONTAINS
@@ -82,8 +91,9 @@ SUBROUTINE allocate_Variables
     ALLOCATE(eta_0(nv)) 
     ALLOCATE(zeta_0(nv)) 
 
-    ALLOCATE(y(nv,nt))
-    ALLOCATE(z(nv,nt))
+    !ALLOCATE(y(nv,nt))
+    !ALLOCATE(z(nv,nt))
+    ALLOCATE(yz(m,nt))
     ALLOCATE(eta(nv,nt))
     ALLOCATE(zeta(nv,nt))
     
@@ -104,6 +114,7 @@ SUBROUTINE allocate_Variables
     ALLOCATE(kb(nk))
     ALLOCATE(s(nk,nt))
     ALLOCATE(v(m,nt,nk))
+    ALLOCATE(eye(m,m))
 
 END SUBROUTINE allocate_variables    
 !======================================================================
@@ -120,17 +131,42 @@ SUBROUTINE set_ground_effect
 END SUBROUTINE set_ground_effect
 !=======================================================================
 !=======================================================================
-SUBROUTINE generate_ka_array
+SUBROUTINE generate_kb_array
     IMPLICIT NONE
     INTEGER      :: k
     REAL(KIND=8) :: dk !< Wave number step size
     
     dk = kspan/REAL(nk,KIND=8)
     DO k = 1, nk
-        ka(k) = REAL(k,KIND=8)*dk
+        kb(k) = REAL(k,KIND=8)*dk
     END DO
 
-END SUBROUTINE generate_ka_array
+END SUBROUTINE generate_kb_array
+!=======================================================================
+!=======================================================================
+SUBROUTINE set_init
+    IMPLICIT NONE
+    INTEGER :: i, j
+
+
+    DO i = 1, nv
+        yz(i,1)    = y_0(i)
+        yz(i+nv,1) = z_0(i)
+    END DO
+    
+    eye(:,:) = 0.d0
+
+    DO j = 1, m
+        eye(j,j) = 1.d0
+    END DO
+    
+    DO n = 1, nk
+        DO i = 1, m
+            phi(:,m,1,n) = eye(:,n)
+        END DO
+    END DO
+    
+END SUBROUTINE set_init
 !=======================================================================
 !=======================================================================
 END MODULE mod_global

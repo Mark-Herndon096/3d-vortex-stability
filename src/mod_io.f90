@@ -17,7 +17,7 @@ SUBROUTINE read_input_data(input_fname)
     USE mod_global
     IMPLICIT NONE
     CHARACTER(len=*), INTENT(IN) :: input_fname
-    INTEGER :: f_unit, io_stat
+    INTEGER :: i, f_unit, io_stat
     LOGICAL :: ex_stat
 
     NAMELIST /CODE_DATA/ nt, dtau, nv, nvt, nk, kspan, ge
@@ -41,8 +41,37 @@ SUBROUTINE read_input_data(input_fname)
         WRITE(stderr, '(3a)') 'Error reading namelist VORTEX_DATA in "', trim(input_fname),'"'
     END IF
     CLOSE(f_unit)
+    
 
 END SUBROUTINE read_input_data
 !======================================================================
+!=======================================================================
+SUBROUTINE write_trajectories(ii)
+    USE mod_global, ONLY : nv, nt, yz, tau, ge
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: ii
+    INTEGER :: zz
+    CHARACTER(LEN=60) :: fname_1
+
+    zz = INT(yz(nv+1,1));
+    IF ( GE == .FALSE. ) THEN
+        WRITE(fname_1,'("DATA/vortex_trajectories-",I4.4,"-",I3.3,".x")'), ii, zz
+        OPEN(1,FILE=fname_1,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
+        WRITE(1) nv, nt
+        WRITE(1) yz
+        WRITE(1) tau
+        CLOSE(1)
+    ELSE
+        WRITE(fname_1,'("DATA/vortex_trajectories-GE-",I4.4,"-",I3.3,".x")'), ii, zz
+        OPEN(1,FILE=fname_1,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
+        WRITE(1) nv, nt
+        WRITE(1) yz
+        WRITE(1) tau
+        CLOSE(1)
+    END IF
+    
+END SUBROUTINE write_trajectories
+!======================================================================
+!=======================================================================
 END MODULE mod_io
 !======================================================================

@@ -8,12 +8,14 @@
 MODULE mod_numerical_routines
     IMPLICIT NONE
     ABSTRACT INTERFACE
-        FUNCTION DERIVATIVE(x_0,m,h,ch)
+        FUNCTION DERIVATIVE(x_0, m, h, ch, z_opts, num_opts)
         IMPLICIT NONE
-        INTEGER,                    INTENT(IN)    :: m
-        REAL(KIND=8),               INTENT(IN)    :: h, ch
-        REAL(KIND=8), DIMENSION(m), INTENT(IN)    :: x_0
-        REAL(KIND=8), DIMENSION(m)                :: DERIVATIVE
+        INTEGER,                          INTENT(IN)    :: m
+        INTEGER, OPTIONAL,                INTENT(INOUT) :: num_opts
+        INTEGER, OPTIONAL, DIMENSION(:), INTENT(INOUT)  :: z_opts
+        REAL(KIND=8),                     INTENT(IN)    :: h, ch
+        REAL(KIND=8), DIMENSION(m),       INTENT(IN)    :: x_0
+        REAL(KIND=8), DIMENSION(m)                      :: DERIVATIVE
         END FUNCTION
     END INTERFACE
     ABSTRACT INTERFACE
@@ -90,10 +92,12 @@ CONTAINS
 !          x  !< return solution vector x(1:m,1:nt)
 ! Place initial condition x_0 in x(:,1)
 !======================================================================
-SUBROUTINE ode_dprk(x,m,nt,h,DERIV)
+SUBROUTINE ode_dprk(x,m,nt,h,DERIV, z_opts, num_opts)
     IMPLICIT NONE
     PROCEDURE(DERIVATIVE)                        :: DERIV
     INTEGER,      INTENT(IN)                     :: m, nt
+    INTEGER,      INTENT(INOUT), OPTIONAL           :: num_opts
+    INTEGER,      INTENT(INOUT), DIMENSION(:), OPTIONAL :: z_opts
     REAL(KIND=8), INTENT(INOUT)                  :: h
     REAL(KIND=8), INTENT(INOUT), DIMENSION(m,nt) :: x
     REAL(KIND=8), DIMENSION(:), ALLOCATABLE      :: k1, & !< RK stage variables
@@ -130,34 +134,66 @@ SUBROUTINE ode_dprk(x,m,nt,h,DERIV)
     ALLOCATE(x_new(m))
     
     x_0 = x(:,1);
-    ! Primary loop over each time series
-    DO n = 1, nt-1
-        ch = c1*h
-        k1 = DERIV(x_0,m,h,ch)
-        y1 = x_0 + h*a21*k1
-        ch = c2*h
-        k2 = DERIV(y1,m,h,ch)
-        y2 = x_0 + h*(a31*k1 + a32*k2)
-        ch = c3*h
-        k3 = DERIV(y2,m,h,ch)
-        y3 = x_0 + h*(a41*k1 + a42*k2 + a43*k3)
-        ch = c4*h
-        k4 = DERIV(y3,m,h,ch)
-        y4 = x_0 + h*(a51*k1 + a52*k2 + a53*k3 + a54*k4)
-        ch = c5*h
-        k5 = DERIV(y4,m,h,ch)
-        y5 = x_0 + h*(a61*k1 + a62*k2 + a63*k3 + a64*k4 + a65*k5)
-        ch = c6*h
-        k6 = DERIV(y5,m,h,ch)
-        y6 = x_0 + h*(a71*k1 + a72*k2 + a73*k3 + a74*k4 + a75*k5 +a76*k6)
-        ch = c7*h
-        k7 = DERIV(y6,m,h,ch)
-        
-        x_new  = x_0 + h*(b1s*k1 + b2s*k2 + b3s*k3 + b4s*k4 + b5s*k5 + b6s*k6 + b7s*k7)
+    IF (PRESENT(z_opts)) THEN 
+        ! Primary loop over each time series
+        DO n = 1, nt-1
+            z_opts(1) = n
+            ch = c1*h
+            k1 = DERIV(x_0, m, h, ch, z_opts, num_opts)
+            y1 = x_0 + h*a21*k1
+            ch = c2*h
+            k2 = DERIV(y1, m, h, ch, z_opts, num_opts)
+            y2 = x_0 + h*(a31*k1 + a32*k2)
+            ch = c3*h
+            k3 = DERIV(y2, m, h, ch, z_opts, num_opts)
+            y3 = x_0 + h*(a41*k1 + a42*k2 + a43*k3)
+            ch = c4*h
+            k4 = DERIV(y3, m, h, ch, z_opts, num_opts)
+            y4 = x_0 + h*(a51*k1 + a52*k2 + a53*k3 + a54*k4)
+            ch = c5*h
+            k5 = DERIV(y4, m, h, ch, z_opts, num_opts)
+            y5 = x_0 + h*(a61*k1 + a62*k2 + a63*k3 + a64*k4 + a65*k5)
+            ch = c6*h
+            k6 = DERIV(y5, m, h, ch, z_opts, num_opts)
+            y6 = x_0 + h*(a71*k1 + a72*k2 + a73*k3 + a74*k4 + a75*k5 +a76*k6)
+            ch = c7*h
+            k7 = DERIV(y6, m, h, ch, z_opts, num_opts)
+            
+            x_new  = x_0 + h*(b1s*k1 + b2s*k2 + b3s*k3 + b4s*k4 + b5s*k5 + b6s*k6 + b7s*k7)
 
-        x(:,n+1) = x_new 
-        x_0      = x_new 
-    END DO
+            x(:,n+1) = x_new 
+            x_0      = x_new 
+        END DO
+    ELSE
+    ! Primary loop over each time series
+        DO n = 1, nt-1
+            ch = c1*h
+            k1 = DERIV(x_0,m,h,ch)
+            y1 = x_0 + h*a21*k1
+            ch = c2*h
+            k2 = DERIV(y1,m,h,ch)
+            y2 = x_0 + h*(a31*k1 + a32*k2)
+            ch = c3*h
+            k3 = DERIV(y2,m,h,ch)
+            y3 = x_0 + h*(a41*k1 + a42*k2 + a43*k3)
+            ch = c4*h
+            k4 = DERIV(y3,m,h,ch)
+            y4 = x_0 + h*(a51*k1 + a52*k2 + a53*k3 + a54*k4)
+            ch = c5*h
+            k5 = DERIV(y4,m,h,ch)
+            y5 = x_0 + h*(a61*k1 + a62*k2 + a63*k3 + a64*k4 + a65*k5)
+            ch = c6*h
+            k6 = DERIV(y5,m,h,ch)
+            y6 = x_0 + h*(a71*k1 + a72*k2 + a73*k3 + a74*k4 + a75*k5 +a76*k6)
+            ch = c7*h
+            k7 = DERIV(y6,m,h,ch)
+            
+            x_new  = x_0 + h*(b1s*k1 + b2s*k2 + b3s*k3 + b4s*k4 + b5s*k5 + b6s*k6 + b7s*k7)
+
+            x(:,n+1) = x_new 
+            x_0      = x_new 
+        END DO
+    END IF
 
     DEALLOCATE(k1)
     DEALLOCATE(k2)
