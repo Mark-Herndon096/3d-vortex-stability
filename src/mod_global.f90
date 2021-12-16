@@ -18,7 +18,6 @@ MODULE mod_global
 
     REAL(KIND=8) :: dtau  !< Time step
     REAL(KIND=8) :: b_0   !< Initial vortex separation
-    REAL(KIND=8) :: omega !< Self induced rotation frequency 
 
     ! USER-SPECIFIED INITIAL CONDITIONS
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:) :: y_0    
@@ -35,6 +34,7 @@ MODULE mod_global
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: yz
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: eta  
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: zeta 
+    REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: omega !< Self induced rotation frequency 
 
     ! VORTEX CIRCULATION STRENGTH AND ORIENTATION
     ! DIMENSION(nvt) --> Ex. gam(vortex index 1) ...
@@ -99,6 +99,7 @@ SUBROUTINE allocate_Variables
     
     ALLOCATE(gam(nvt))
     ALLOCATE(a(nvt))
+    ALLOCATE(omega(nvt,nk))
 
     ALLOCATE(vc_0(m))
     ALLOCATE(vc_new(m))

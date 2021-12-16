@@ -13,6 +13,7 @@ PROGRAM main
     IMPLICIT NONE
     PROCEDURE(DERIVATIVE) :: vortex_t_deriv
     PROCEDURE(DERIVATIVE) :: vortex_deriv
+    PROCEDURE(self_induction) :: omega_func   !< Special functions
     INTEGER :: k, num_opts, jj
     INTEGER, DIMENSION(:), ALLOCATABLE :: opts
     CHARACTER(LEN=100) :: input_fname    
@@ -36,11 +37,17 @@ PROGRAM main
     
     num_opts = 2
     ALLOCATE(opts(num_opts))
+    
+    DO k = 1, nk
+        DO jj = 1, nv
+            omega(jj,k) = omega_func(kb(k)*a(jj))
+        END DO
+    END DO
+
 
     tstart = OMP_get_wtime()
     DO k = 1, nk
         opts(1) = k
-        opts(2) = k
         DO jj = 1, m
             CALL ode_dprk(phi(:,jj,:,k), m, nt, dtau, vortex_deriv, opts, num_opts)
         END DO
@@ -68,7 +75,7 @@ END PROGRAM main
 !=======================================================================
 FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
     USE mod_global, ONLY : ge, pi, nv, nvt, gam, mutual_induction, ka, &
-                           kb, a, yz, self_induction
+                           kb, a, yz, omega
     IMPLICIT NONE
     INTEGER,                    INTENT(IN)    :: m
     INTEGER, OPTIONAL,          INTENT(IN)    :: num_opts
@@ -78,7 +85,6 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
     REAL(KIND=8), DIMENSION(m)                :: vortex_deriv
     ! FUNCTION SPECIFIC VARIABLES AND PARAMETERS
     PROCEDURE(mutual_induction)               :: psi, phi    !< Special functions
-    PROCEDURE(self_induction)                 :: omega_func   !< Special functions
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:)   :: y_temp      !< Temporary y array
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:)   :: z_temp      !< Temporary z array
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:)   :: eta_temp    !< Temporary eta array
@@ -104,7 +110,6 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
     REAL(KIND=8)                              :: W2_mn       !< Second term for zeta equation
     REAL(KIND=8)                              :: W3_mn       !< Third term for zeta equation
     REAL(KIND=8)                              :: W4_mn       !< Fourth term for zeta equation
-    REAL(KIND=8)                              :: omega 
 
     ALLOCATE(eta_temp(nvt))
     ALLOCATE(zeta_temp(nvt))
@@ -132,6 +137,7 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
          z_temp(i)     = -z_temp(i-nv)
          eta_temp(i)   =  x_0(i-nv)
          zeta_temp(i)  = -x_0(i)
+         omega(i,k)      = omega(i-nv,k)
      END DO
     END IF
 
@@ -158,9 +164,8 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
                 sum_zeta = sum_zeta + W1_mn*zeta_temp(i) + W2_mn*zeta_temp(j) + W3_mn*eta_temp(i)  + W4_mn*eta_temp(j)
             END IF
         END DO
-        omega         = omega_func(kb(k)*a(i))
-        eta_deriv(i)  = sum_eta  + (gam(i)/(a(i)**2))*omega*zeta_temp(i) 
-        zeta_deriv(i) = sum_zeta - (gam(i)/(a(i)**2))*omega*eta_temp(i) 
+        eta_deriv(i)  = sum_eta  + (gam(i)/(a(i)**2))*omega(i,k)*zeta_temp(i) 
+        zeta_deriv(i) = sum_zeta - (gam(i)/(a(i)**2))*omega(i,k)*eta_temp(i) 
         sum_eta       = 0.d0
         sum_zeta      = 0.d0
     END DO
