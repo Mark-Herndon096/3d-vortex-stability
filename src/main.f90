@@ -47,7 +47,7 @@ PROGRAM main
 
     tstart = OMP_get_wtime()
     DO k = 1, nk
-        opts(1) = k
+        opts(2) = k
         DO jj = 1, m
             CALL ode_dprk(phi(:,jj,:,k), m, nt, dtau, vortex_deriv, opts, num_opts)
         END DO
@@ -117,12 +117,10 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
     ALLOCATE(z_temp(nvt))
     ALLOCATE(eta_deriv(nv))
     ALLOCATE(zeta_deriv(nv))
-    
+     
     n = z_opts(1); k = z_opts(2);
-
     ! Initialize sum holder values to 0.0
     sum_eta = 0.0; sum_zeta = 0.0;
-
     ! Map x_0 values into temporary arrays
     DO i = 1, nv
         y_temp(i)    = yz(i,n)    + ch*(yz(i,n+1)-yz(i,n))/h 
@@ -137,7 +135,7 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
          z_temp(i)     = -z_temp(i-nv)
          eta_temp(i)   =  x_0(i-nv)
          zeta_temp(i)  = -x_0(i)
-         omega(i,k)      = omega(i-nv,k)
+         omega(i,k)    = omega(i-nv,k)
      END DO
     END IF
 
