@@ -2,8 +2,8 @@
 clc; clear all; close all;
 
 dir = '../DATA/';
-fname2 = sprintf('%svortex_trajectories-0800-007.x',dir);
-fname = sprintf('%svortex_trajectories-GE-0800-007.x',dir);
+fname2 = sprintf('%svortex_trajectories-100-007.x',dir);
+fname = sprintf('%svortex_trajectories-GE-1000-007.x',dir);
 fid = fopen(fname,'r','ieee-le');
 fid2 = fopen(fname2,'r','ieee-le');
 nv = fread(fid,1,'int');

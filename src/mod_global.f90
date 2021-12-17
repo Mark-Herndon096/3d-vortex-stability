@@ -167,6 +167,11 @@ SUBROUTINE set_init
         END DO
     END DO
     
+    tau(1) = 0.d0
+
+    DO i = 1, nt-1
+        tau(i+1) = dtau*(REAL(i,KIND=8))
+    END DO    
     
 END SUBROUTINE set_init
 !=======================================================================

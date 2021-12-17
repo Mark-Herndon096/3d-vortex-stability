@@ -21,28 +21,17 @@ PROGRAM main
 
     CALL GET_COMMAND_ARGUMENT(1,input_fname)
     CALL read_input_data(TRIM(input_fname))
-    IF ( GE == .TRUE. ) THEN
-        CALL SET_GROUND_EFFECT
+    IF ( ge == .TRUE. ) THEN
+        CALL set_ground_effect
     END IF
-    
-    tau(1) = 0.d0
-    DO n = 1, nt-1
-        tau(n+1) = dtau*(REAL(n,KIND=8))
-    END DO    
 
     CALL generate_kb_array
     CALL set_init
     CALL ode_dprk(yz, m, nt, dtau, vortex_t_deriv)
     CALL write_trajectories(nk)
-    
+    CALL calculate_omega 
     num_opts = 2
     ALLOCATE(opts(num_opts))
-    
-    DO k = 1, nk
-        DO jj = 1, nv
-            omega(jj,k) = omega_func(kb(k)*a(jj))
-        END DO
-    END DO
 
 
     tstart = OMP_get_wtime()
@@ -51,14 +40,11 @@ PROGRAM main
         DO jj = 1, m
             CALL ode_dprk(phi(:,jj,:,k), m, nt, dtau, vortex_deriv, opts, num_opts)
         END DO
+            CALL calculate_singular_values(k)
         tend = OMP_get_wtime()
         tf   = tend - tstart
         WRITE(*,'(A,I4,X,A,X,I4,3X,A,3X,F12.6,3X,A)') 'COMPLETED ITERATION ', k, '/',nk,'. . .', tf, 'SECONDS ELAPSED'
     END DO    
-    DO k = 1, nk
-        CALL singular_values(k)
-    END DO
-    WRITE(*,*) s(:,nt)
     CALL write_solution_file(nk)
      
     OPEN(1,FILE='omega.x',ACTION='WRITE',STATUS='REPLACE',ACCESS='STREAM',FORM='UNFORMATTED')
@@ -99,14 +85,14 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
     REAL(KIND=8)                              :: sum_z       !< Sum holder for y eq
     REAL(KIND=8)                              :: sum_eta     !< Sum holder for y eq
     REAL(KIND=8)                              :: sum_zeta    !< Sum holder for y eq
-    REAL(KIND=8)                              :: V1_mn       !< First term for eta equation
-    REAL(KIND=8)                              :: V2_mn       !< Second term for eta equation
-    REAL(KIND=8)                              :: V3_mn       !< Third term for eta equation
-    REAL(KIND=8)                              :: V4_mn       !< Fourth term for eta equation
-    REAL(KIND=8)                              :: W1_mn       !< First term for zeta equation
-    REAL(KIND=8)                              :: W2_mn       !< Second term for zeta equation
-    REAL(KIND=8)                              :: W3_mn       !< Third term for zeta equation
-    REAL(KIND=8)                              :: W4_mn       !< Fourth term for zeta equation
+    REAL(KIND=8)                              :: v1_mn       !< First term for eta equation
+    REAL(KIND=8)                              :: v2_mn       !< Second term for eta equation
+    REAL(KIND=8)                              :: v3_mn       !< Third term for eta equation
+    REAL(KIND=8)                              :: v4_mn       !< Fourth term for eta equation
+    REAL(KIND=8)                              :: w1_mn       !< First term for zeta equation
+    REAL(KIND=8)                              :: w2_mn       !< Second term for zeta equation
+    REAL(KIND=8)                              :: w3_mn       !< Third term for zeta equation
+    REAL(KIND=8)                              :: w4_mn       !< Fourth term for zeta equation
 
     ALLOCATE(eta_temp(nvt))
     ALLOCATE(zeta_temp(nvt))
@@ -145,18 +131,18 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
                 y_mn  = y_temp(j) - y_temp(i)
                 r_mn  = SQRT(y_mn**2 + z_mn**2)
 
-                V1_mn =   gam(j)*2.d0*y_mn*z_mn/(r_mn**4)
-                V2_mn = -(gam(j)*2.d0*y_mn*z_mn/(r_mn**4))*PHI(kb(k)*r_mn) 
-                V3_mn = -(gam(j)/(r_mn**2))*(1.d0 - (2.d0*z_mn**2/r_mn**2))
-                V4_mn =  (gam(j)/(r_mn**2))*(PSI(kb(k)*r_mn) - ((2.d0*z_mn**2)/r_mn**2)*PHI(kb(k)*r_mn))
+                v1_mn =   gam(j)*2.d0*y_mn*z_mn/(r_mn**4)
+                v2_mn = -(gam(j)*2.d0*y_mn*z_mn/(r_mn**4))*phi(kb(k)*r_mn) 
+                v3_mn = -(gam(j)/(r_mn**2))*(1.d0 - (2.d0*z_mn**2/r_mn**2))
+                v4_mn =  (gam(j)/(r_mn**2))*(psi(kb(k)*r_mn) - ((2.d0*z_mn**2)/r_mn**2)*phi(kb(k)*r_mn))
 
-                W1_mn =  -gam(j)*2.d0*y_mn*z_mn/(r_mn**4)
-                W2_mn =  (gam(j)*2.d0*y_mn*z_mn/(r_mn**4))*PHI(kb(k)*r_mn) 
-                W3_mn =  (gam(j)/(r_mn**2))*(1.d0 - (2.d0*y_mn**2/r_mn**2))
-                W4_mn = -(gam(j)/(r_mn**2))*(PSI(kb(k)*r_mn) - ((2.d0*y_mn**2)/r_mn**2)*PHI(kb(k)*r_mn))
+                w1_mn =  -gam(j)*2.d0*y_mn*z_mn/(r_mn**4)
+                w2_mn =  (gam(j)*2.d0*y_mn*z_mn/(r_mn**4))*phi(kb(k)*r_mn) 
+                w3_mn =  (gam(j)/(r_mn**2))*(1.d0 - (2.d0*y_mn**2/r_mn**2))
+                w4_mn = -(gam(j)/(r_mn**2))*(psi(kb(k)*r_mn) - ((2.d0*y_mn**2)/r_mn**2)*phi(kb(k)*r_mn))
 
-                sum_eta  = sum_eta  + V1_mn*eta_temp(i)  + V2_mn*eta_temp(j)  + V3_mn*zeta_temp(i) + V4_mn*zeta_temp(j)
-                sum_zeta = sum_zeta + W1_mn*zeta_temp(i) + W2_mn*zeta_temp(j) + W3_mn*eta_temp(i)  + W4_mn*eta_temp(j)
+                sum_eta  = sum_eta  + v1_mn*eta_temp(i)  + v2_mn*eta_temp(j)  + v3_mn*zeta_temp(i) + v4_mn*zeta_temp(j)
+                sum_zeta = sum_zeta + w1_mn*zeta_temp(i) + w2_mn*zeta_temp(j) + w3_mn*eta_temp(i)  + w4_mn*eta_temp(j)
             END IF
         END DO
         eta_deriv(i)  = sum_eta  + (gam(i)/(a(i)**2))*omega(i,k)*zeta_temp(i) 
@@ -353,22 +339,22 @@ FUNCTION phi(beta)
 END FUNCTION phi
 !=======================================================================
 !=======================================================================
-SUBROUTINE singular_values(ii)
+SUBROUTINE calculate_singular_values(ii)
     USE mod_global, ONLY : m, phi, s, nt, V
     USE LAPACK95, ONLY : GESVD
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: ii
     INTEGER :: i, j, ni, nj, nn
     INTEGER(KIND=8) :: INFO
-    REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: A_tmp, U, VT
+    REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: a_tmp, u, vt
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:)   :: s_array
     CHARACTER(LEN=1) :: JOB = 'U'
-    ALLOCATE(A_tmp(m,m))
+    ALLOCATE(a_tmp(m,m))
     ALLOCATE(s_array(m))
-    ALLOCATE(VT(m,m))
+    ALLOCATE(vt(m,m))
     
     DO nn = 1, nt
-        A_tmp(:,:) = phi(:,:,nn,ii)
+        a_tmp(:,:) = phi(:,:,nn,ii)
 !        WRITE(*,'("Matrix A"/(<m>F8.4))'), ((A_tmp(i,j), i = 1, m), j = 1, m)
         CALL GESVD(A=A_tmp,S=s_array,VT=VT,JOB=JOB,INFO=INFO)
     !    WRITE(*,'("Matrix V"/(<m>F8.4))'), ((VT(i,j), i = 1, m), j = 1, m)
@@ -381,4 +367,20 @@ SUBROUTINE singular_values(ii)
     END DO
     
     DEALLOCATE(A_tmp); DEALLOCATE(s_array); DEALLOCATE(VT)
-END SUBROUTINE singular_values
+END SUBROUTINE calculate_singular_values
+!======================================================================
+!======================================================================
+SUBROUTINE calculate_omega 
+    USE mod_global, ONLY : omega, nk, nv, kb, a, self_induction
+    IMPLICIT NONE
+    PROCEDURE(self_induction) :: omega_func   !< Special functions
+    INTEGER :: k, jj    
+    DO k = 1, nk
+        DO jj = 1, nv
+            omega(jj,k) = omega_func(kb(k)*a(jj))
+        END DO
+    END DO
+
+END SUBROUTINE calculate_omega 
+!======================================================================
+!======================================================================

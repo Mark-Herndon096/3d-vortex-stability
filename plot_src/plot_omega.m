@@ -1,7 +1,7 @@
 clc; clear all; close all;
 
 
-dir = '/Users/markherndon/3d-vortex-stability/';
+dir = '../';
 %fname = sprintf('%sperturbations-1000-001.x',dir);
 fname = sprintf('%somega.x',dir);
 fid = fopen(fname,'r','ieee-le');
