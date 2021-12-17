@@ -6,21 +6,25 @@ dir = '/Users/markherndon/3d-vortex-stability/';
 fname = sprintf('%somega.x',dir);
 fid = fopen(fname,'r','ieee-le');
 
-
+nv  = fread(fid,1,'int');
 nk  = fread(fid,1,'int');
-wvs = zeros(nk,1);
-omg = zeros(nk,1);
+kb  = zeros(nk,1);
+omg = zeros(nv,nk);
 
+a = 0.098;
 
+kb = fread(fid,nk,'double');
 
-a = 0.31;
+for k = 1:nk
+	omg(:,k) = fread(fid,nv,'double');
+end
 
-wvs = fread(fid,nk,'double');
-omg = fread(fid,nk,'double');
+ka = zeros(nk,1);
+ka = kb*a;
 
 %%
 figure(1)
-plot(wvs,omg,'r-','LineWidth',1.5)
+plot(ka,omg(1,:),'r-','LineWidth',1.5)
 xlim([0 3])
 ylim([0 1])
 % 

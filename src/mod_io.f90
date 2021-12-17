@@ -44,6 +44,59 @@ SUBROUTINE read_input_data(input_fname)
     
 
 END SUBROUTINE read_input_data
+!=======================================================================
+!=======================================================================
+SUBROUTINE WRITE_SOLUTION_FILE(ii)
+    USE mod_global, ONLY : nv, nvt, nt, tau, ge, phi, nk, s, kb, V, yz
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: ii
+    INTEGER :: zz
+    CHARACTER(LEN=60) :: fname_1, fname_2
+    zz = INT(yz(1+nv,1));
+    IF ( GE == .FALSE. ) THEN
+        WRITE(fname_2,'("DATA/perturbations-",I4.4,"-",I3.3,".x")'), ii, zz
+        OPEN(1,FILE=fname_2,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
+        WRITE(1) nv, nt, nk
+        WRITE(1) phi
+        WRITE(1) tau
+        WRITE(1) s
+        WRITE(1) kb
+        WRITE(1) V
+        CLOSE(1)
+
+        WRITE(fname_2,'("DATA/perturbations_2-",I4.4,"-",I3.3,".x")'), ii, zz
+        OPEN(1,FILE=fname_2,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
+        WRITE(1) nv, nt, nk
+        !WRITE(1) PHI
+        WRITE(1) tau
+        WRITE(1) s
+        WRITE(1) kb
+        WRITE(1) V
+        CLOSE(1)
+    ELSE
+        WRITE(fname_2,'("DATA/perturbations-GE-",I4.4,"-",I3.3,".x")'), ii, zz
+        OPEN(1,FILE=fname_2,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
+        WRITE(1) nv, nt, nk
+        WRITE(1) PHI
+        WRITE(1) tau
+        WRITE(1) s
+        WRITE(1) kb
+        WRITE(1) V
+        CLOSE(1)
+
+        WRITE(fname_2,'("DATA/perturbations_2-GE-",I4.4,"-",I3.3,".x")'), ii, zz
+        OPEN(1,FILE=fname_2,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
+        WRITE(1) nv, nt, nk
+        !WRITE(1) PHI
+        WRITE(1) tau
+        WRITE(1) s
+        WRITE(1) kb
+        WRITE(1) V
+        CLOSE(1)
+    END IF
+END SUBROUTINE WRITE_SOLUTION_FILE
+!=======================================================================
+!=======================================================================
 !======================================================================
 !=======================================================================
 SUBROUTINE write_trajectories(ii)

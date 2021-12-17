@@ -161,11 +161,12 @@ SUBROUTINE set_init
         eye(j,j) = 1.d0
     END DO
     
-    DO n = 1, nk
+    DO j = 1, nk
         DO i = 1, m
-            phi(:,m,1,n) = eye(:,n)
+            phi(:,i,1,j) = eye(:,i)
         END DO
     END DO
+    
     
 END SUBROUTINE set_init
 !=======================================================================

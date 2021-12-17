@@ -55,27 +55,24 @@ PROGRAM main
         tf   = tend - tstart
         WRITE(*,'(A,I4,X,A,X,I4,3X,A,3X,F12.6,3X,A)') 'COMPLETED ITERATION ', k, '/',nk,'. . .', tf, 'SECONDS ELAPSED'
     END DO    
+    DO k = 1, nk
+        CALL singular_values(k)
+    END DO
+    WRITE(*,*) s(:,nt)
+    CALL write_solution_file(nk)
      
-    !!$OMP PARALLEL
-    !!$OMP DO    
-    !DO k = 1, nk
-    !    omega_array(k) = self_induction(ka(k))
-    !END DO
-    !!$OMP END DO
-    !!$OMP END PARALLEL
-    !
-    !OPEN(1,FILE='omega.x',ACTION='WRITE',STATUS='REPLACE',ACCESS='STREAM',FORM='UNFORMATTED')
-    !WRITE(1) nk
-    !WRITE(1) ka
-    !WRITE(1) omega_array
-    !CLOSE(1)
+    OPEN(1,FILE='omega.x',ACTION='WRITE',STATUS='REPLACE',ACCESS='STREAM',FORM='UNFORMATTED')
+    WRITE(1) nv, nk
+    WRITE(1) kb
+    WRITE(1) omega
+    CLOSE(1)
     
 END PROGRAM main
 !=======================================================================
 !=======================================================================
 FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
     USE mod_global, ONLY : ge, pi, nv, nvt, gam, mutual_induction, ka, &
-                           kb, a, yz, omega
+                           kb, a, yz, omega, nt
     IMPLICIT NONE
     INTEGER,                    INTENT(IN)    :: m
     INTEGER, OPTIONAL,          INTENT(IN)    :: num_opts
@@ -173,6 +170,17 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
         vortex_deriv(i+nv) = zeta_deriv(i)
     END DO
     
+    !WRITE(*,*) '--------------------------------------'
+    !WRITE(*,*) 'k          = ', k
+    !WRITE(*,*) 'kb(k)      = ', kb(k) 
+    !WRITE(*,*) 'a(1)       = ', a(1) 
+    !WRITE(*,*) 'a(2)       = ', a(2) 
+    !WRITE(*,*) 'gam(1)     = ', gam(1) 
+    !WRITE(*,*) 'gam(2)     = ', gam(2) 
+    !WRITE(*,*) 'omega(1,k) = ', omega(1,k) 
+    !WRITE(*,*) 'omega(2,k) = ', omega(2,k) 
+    !WRITE(*,*) '--------------------------------------'
+    !WRITE(*,*) '--------------------------------------'
 
     DEALLOCATE(y_temp)
     DEALLOCATE(z_temp)
@@ -345,3 +353,32 @@ FUNCTION phi(beta)
 END FUNCTION phi
 !=======================================================================
 !=======================================================================
+SUBROUTINE singular_values(ii)
+    USE mod_global, ONLY : m, phi, s, nt, V
+    USE LAPACK95, ONLY : GESVD
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: ii
+    INTEGER :: i, j, ni, nj, nn
+    INTEGER(KIND=8) :: INFO
+    REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: A_tmp, U, VT
+    REAL(KIND=8), ALLOCATABLE, DIMENSION(:)   :: s_array
+    CHARACTER(LEN=1) :: JOB = 'U'
+    ALLOCATE(A_tmp(m,m))
+    ALLOCATE(s_array(m))
+    ALLOCATE(VT(m,m))
+    
+    DO nn = 1, nt
+        A_tmp(:,:) = phi(:,:,nn,ii)
+!        WRITE(*,'("Matrix A"/(<m>F8.4))'), ((A_tmp(i,j), i = 1, m), j = 1, m)
+        CALL GESVD(A=A_tmp,S=s_array,VT=VT,JOB=JOB,INFO=INFO)
+    !    WRITE(*,'("Matrix V"/(<m>F8.4))'), ((VT(i,j), i = 1, m), j = 1, m)
+!        WRITE(*,'("Singular Values"/(1F8.4))'), (s_array(i), i = 1, m)
+        s(ii,nn) = s_array(1)
+        DO j = 1, m
+            V(j,nn,ii) = VT(j,1)
+        !    WRITE(*,*) VT(j,1)
+        END DO
+    END DO
+    
+    DEALLOCATE(A_tmp); DEALLOCATE(s_array); DEALLOCATE(VT)
+END SUBROUTINE singular_values
