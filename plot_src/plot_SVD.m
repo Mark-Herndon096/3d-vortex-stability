@@ -2,7 +2,7 @@
 clc; clear all; close all;
 
 dir = '../DATA/';
-fname = sprintf('%sperturbations_2-GE-2000-005.x',dir);
+fname = sprintf('%sperturbations_2-GE-0500-005.x',dir);
 fid = fopen(fname,'r','ieee-le');
 
 nv = fread(fid,1,'int');
@@ -23,16 +23,16 @@ kb = fread(fid,nk,'double');
 
 
 %% Plot trajectories
-t_ind = 171;
+t_ind = 900;
 % for k = 1:nk
 %     s(k,t_ind) = log(s(k,t_ind))/tau(t_ind);
 % end
 figure(1)
 plot(kb,s(:,t_ind),'k-')
 %ylim([0 6])
-xlim([0 10])
+xlim([0 6])
 %legend('Free vortex pair','Ground constraint','Center position','Center position');
 %set(L,'Interpreter','LaTeX')
 
 [max_val, max_ind] = max(s(:,t_ind));
-fprintf("s = %8.4f at kb = %5.4f\n",max_val, kb(max_ind))
+fprintf("s = %15.6f at kb = %5.4f\n",max_val, kb(max_ind))

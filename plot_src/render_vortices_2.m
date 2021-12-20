@@ -19,7 +19,7 @@ tau = fread(fid,nt,'double');
 fprintf("Read in trajectory data\n");
 
 %% Read in perturbation data
-fname2 = sprintf('%sperturbations_3-0500-005.x',dir);
+fname2 = sprintf('%sperturbations_3-GE-0500-005.x',dir);
 fid2 = fopen(fname2,'r','ieee-le');
 
 nv = fread(fid2,1,'int');
@@ -46,6 +46,8 @@ fprintf("Read in perturbation data\n");
 
 %% Calculate theta for each vortex
 theta = zeros(nv,nt);
+zeta(:,:) = -zeta(:,:);
+eta(:,:) = -eta(:,:);
 for n = 1:nt
     for k = 1:nv
         theta(k,n) = atan(zeta(k,n)/eta(k,n));
@@ -86,12 +88,99 @@ for n = 1:nt
     end
 end
 
+%% GE vortex
+dir = '../DATA/';
+fname3 = sprintf('%svortex_trajectories-0500-005.x',dir);
+fid3 = fopen(fname3,'r','ieee-le');
+nv3 = fread(fid3,1,'int');
+nt3 = fread(fid3,1,'int');
+
+yz2  = zeros(2*nv3,nt3);
+tau3 = zeros(1,nt3);
+
+for n = 1:nt3
+	yz2(:,n) = fread(fid3,2*nv3,'double');
+end
+
+tau3 = fread(fid3,nt3,'double');
+
+fprintf("Read in trajectory data\n");
+
+%% Read in perturbation data
+fname4 = sprintf('%sperturbations_3-0500-005.x',dir);
+fid4 = fopen(fname4,'r','ieee-le');
+
+nv4 = fread(fid4,1,'int');
+nt4 = fread(fid4,1,'int');
+nk4 = fread(fid4,1,'int');
+tau4 = zeros(1,nt4);
+eta4 = zeros(nv4,nt4);
+zeta4 = zeros(nv4,nt4);
+
+yz_perturb4 = zeros(2*nv4,nt4);
+
+tau4 = fread(fid4,nt4,'double');
+
+for n = 1:nt4
+	yz_perturb4(:,n) = fread(fid4,2*nv4,'double');
+end
+
+kb4 = fread(fid4,nk4,'double');
+
+eta4(:,:)  = yz_perturb4(1:nv4,:);
+zeta4(:,:) = yz_perturb4(nv4+1:2*nv4,:);
+
+fprintf("Read in perturbation data\n");
+
+%% Calculate theta for each vortex
+theta4 = zeros(nv4,nt4);
+for n = 1:nt4
+    for k = 1:nv4
+        theta4(k,n) = atan(zeta4(k,n)/eta4(k,n));
+    end
+end
+
+theta4(2,:) = theta4(2,:) - pi;
+fprintf("Calculated theta displacement for each vortex\n");
+
+%% Test section for plotting 3d sinusoidal line and rotating in global frame
+np = 1000;
+k = 0.73;
+x = linspace(0, 2*pi/k,np);
+
+y2 = zeros(nv4,np,nt4);
+z2 = zeros(nv4,np,nt4);
+
+Yp2 = zeros(1,np);
+Zp2 = zeros(1,np);
+
+amp2 = zeros(nv4,nt4);
+
+for n = 1:nt4
+    for k = 1:nv4
+        amp2(k,n) = 0.01*sqrt(eta4(k,n)^2 + zeta4(k,n)^2);
+    end
+end
+%theta(:,:) = -theta(:,:);
+for n = 1:nt4
+    for i = 1:nv4
+        Yp2(:) = amp2(i,n)*sin((k)*x);
+        Zp2(:) = 0.0;
+        for j = 1:np
+            [Yp2(j), Zp2(j)] = rotate_curve(Yp2(j), Zp2(j), theta4(i,n));
+            y2(i,j,n) = yz2(i,n) + Yp2(j);
+            z2(i,j,n) = yz2(i+nv,n) + Zp2(j);
+        end
+    end
+end
 %% plot
 figure(1)
 for t_ind = 1:10:1500
 clf;
 plot3(x, y(1,:,t_ind), z(1,:,t_ind),'ro'), hold on
-plot3(x, y(2,:,t_ind), z(2,:,t_ind),'bo'), hold on
+plot3(x, y(2,:,t_ind), z(2,:,t_ind),'ro'), hold on
+plot3(x, y2(1,:,t_ind), z2(1,:,t_ind),'bo'), hold on
+plot3(x, y2(2,:,t_ind), z2(2,:,t_ind),'bo'), hold on
 xlabel('x')
 ylabel('y')
 zlabel('z')
@@ -147,8 +236,8 @@ view(90,0)
 %%
 figure(3)
 plot(tau,eta(1,:),'r-o'), hold on
-plot(tau,zeta(1,:),'k-o'), hold on
-plot(tau,eta(2,:),'r-'), hold on
+plot(tau,zeta(1,:),'r-o'), hold on
+plot(tau,eta(2,:),'b-'), hold on
 plot(tau,zeta(2,:),'b-')
 ylim([-30 30])
 xlim([0 6.5])

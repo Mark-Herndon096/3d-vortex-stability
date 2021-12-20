@@ -47,7 +47,7 @@ END SUBROUTINE read_input_data
 !=======================================================================
 !=======================================================================
 SUBROUTINE WRITE_SOLUTION_FILE(ii)
-    USE mod_global, ONLY : nv, nvt, nt, tau, ge, phi, nk, s, kb, V, yz
+    USE mod_global, ONLY : nv, nvt, nt, tau, ge, phi, nk, s, kb, V, yz, yz_perturb
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: ii
     INTEGER :: zz
@@ -67,11 +67,18 @@ SUBROUTINE WRITE_SOLUTION_FILE(ii)
         WRITE(fname_2,'("DATA/perturbations_2-",I4.4,"-",I3.3,".x")'), ii, zz
         OPEN(1,FILE=fname_2,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
         WRITE(1) nv, nt, nk
-        !WRITE(1) PHI
         WRITE(1) tau
         WRITE(1) s
         WRITE(1) kb
         WRITE(1) V
+        CLOSE(1)
+
+        WRITE(fname_2,'("DATA/perturbations_3-",I4.4,"-",I3.3,".x")'), ii, zz
+        OPEN(1,FILE=fname_2,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
+        WRITE(1) nv, nt, nk
+        WRITE(1) tau
+        WRITE(1) yz_perturb
+        WRITE(1) kb
         CLOSE(1)
     ELSE
         WRITE(fname_2,'("DATA/perturbations-GE-",I4.4,"-",I3.3,".x")'), ii, zz
@@ -87,11 +94,18 @@ SUBROUTINE WRITE_SOLUTION_FILE(ii)
         WRITE(fname_2,'("DATA/perturbations_2-GE-",I4.4,"-",I3.3,".x")'), ii, zz
         OPEN(1,FILE=fname_2,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
         WRITE(1) nv, nt, nk
-        !WRITE(1) PHI
         WRITE(1) tau
         WRITE(1) s
         WRITE(1) kb
         WRITE(1) V
+        CLOSE(1)
+
+        WRITE(fname_2,'("DATA/perturbations_3-GE-",I4.4,"-",I3.3,".x")'), ii, zz
+        OPEN(1,FILE=fname_2,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
+        WRITE(1) nv, nt, nk
+        WRITE(1) tau
+        WRITE(1) yz_perturb
+        WRITE(1) kb
         CLOSE(1)
     END IF
 END SUBROUTINE WRITE_SOLUTION_FILE

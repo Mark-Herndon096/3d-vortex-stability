@@ -34,6 +34,7 @@ MODULE mod_global
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: yz
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: eta  
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: zeta 
+    REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: yz_perturb 
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: omega !< Self induced rotation frequency 
 
     ! VORTEX CIRCULATION STRENGTH AND ORIENTATION
@@ -48,7 +49,7 @@ MODULE mod_global
     REAL(KIND=8) :: b     
     REAL(KIND=8) :: h     
     INTEGER      :: m     !< Dimension of VORT array
-
+    INTEGER      :: k_ind, t_ind
     ! GLOBAL VARIABLES
     INTEGER :: n    !< Time integration indexing integer
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:) :: vc_0
@@ -94,6 +95,7 @@ SUBROUTINE allocate_Variables
     !ALLOCATE(y(nv,nt))
     !ALLOCATE(z(nv,nt))
     ALLOCATE(yz(m,nt))
+    ALLOCATE(yz_perturb(m,nt))
     ALLOCATE(eta(nv,nt))
     ALLOCATE(zeta(nv,nt))
     
@@ -174,6 +176,27 @@ SUBROUTINE set_init
     END DO    
     
 END SUBROUTINE set_init
+!=======================================================================
+!=======================================================================
+SUBROUTINE set_optimal_init
+    IMPLICIT NONE
+    INTEGER :: i, j
+
+    t_ind = INT(4.5d0/0.005d0);
+    k_ind = MAXLOC(s(:,t_ind),1)    
+    WRITE(*,*) ' k = ', kb(k_ind), ' at k_ind = ', k_ind
+
+    DO i = 1, nv
+        yz_perturb(i,1)    = V(i,t_ind,k_ind)
+        yz_perturb(i+nv,1) = V(i+nv,t_ind,k_ind)
+    END DO
+
+    DO i = 1, 2*nv
+        WRITE(*,*) yz_perturb(i,1)
+    END DO
+    
+
+END SUBROUTINE set_optimal_init
 !=======================================================================
 !=======================================================================
 END MODULE mod_global

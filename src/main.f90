@@ -44,7 +44,17 @@ PROGRAM main
         tend = OMP_get_wtime()
         tf   = tend - tstart
         WRITE(*,'(A,I4,X,A,X,I4,3X,A,3X,F12.6,3X,A)') 'COMPLETED ITERATION ', k, '/',nk,'. . .', tf, 'SECONDS ELAPSED'
-    END DO    
+    END DO
+    
+    CALL set_optimal_init
+    opts(2) = 244
+        
+    WRITE(*,*) 'yz_perturb(1,1) = ', yz_perturb(1,1)
+    WRITE(*,*) 'yz_perturb(2,1) = ', yz_perturb(2,1)
+    WRITE(*,*) 'yz_perturb(3,1) = ', yz_perturb(3,1)
+    WRITE(*,*) 'yz_perturb(4,1) = ', yz_perturb(4,1)
+
+    CALL ode_dprk(yz_perturb, m, nt, dtau, vortex_deriv, opts, num_opts)
     CALL write_solution_file(nk)
      
     OPEN(1,FILE='omega.x',ACTION='WRITE',STATUS='REPLACE',ACCESS='STREAM',FORM='UNFORMATTED')
@@ -72,6 +82,7 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:)   :: z_temp      !< Temporary z array
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:)   :: eta_temp    !< Temporary eta array
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:)   :: zeta_temp   !< Temporary zeta array
+    REAL(KIND=8), ALLOCATABLE, DIMENSION(:)   :: omega_temp   !< Temporary zeta array
 
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:)   :: y_deriv     !< y derivative array
     REAL(KIND=8), ALLOCATABLE, DIMENSION(:)   :: z_deriv     !< z derivative array
@@ -98,6 +109,7 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
     ALLOCATE(zeta_temp(nvt))
     ALLOCATE(y_temp(nvt))
     ALLOCATE(z_temp(nvt))
+    ALLOCATE(omega_temp(nvt))
     ALLOCATE(eta_deriv(nv))
     ALLOCATE(zeta_deriv(nv))
      
@@ -111,14 +123,24 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
         eta_temp(i)  = x_0(i)
         zeta_temp(i) = x_0(i+nv)
     END DO
-
+    
+    !IF ( n .EQ. 1 ) THEN
+    !    WRITE(*,*) '=============================================='
+    !    WRITE(*,*) 'x_0(1) = ', x_0(1)
+    !    WRITE(*,*) 'x_0(2) = ', x_0(2)
+    !    WRITE(*,*) 'x_0(3) = ', x_0(3)
+    !    WRITE(*,*) 'x_0(4) = ', x_0(4)
+    !    WRITE(*,*) '============================================='
+    !END IF
+   
     IF ( GE == .TRUE. ) THEN
      DO i = nv+1, nvt
          y_temp(i)     =  y_temp(i-nv)
          z_temp(i)     = -z_temp(i-nv)
          eta_temp(i)   =  x_0(i-nv)
          zeta_temp(i)  = -x_0(i)
-         omega(i,k)    = omega(i-nv,k)
+         !omega(i,k)    =  omega(i-nv,k)
+         omega_temp(i)    =  omega(i-nv,k)
      END DO
     END IF
 
@@ -145,8 +167,8 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
                 sum_zeta = sum_zeta + w1_mn*zeta_temp(i) + w2_mn*zeta_temp(j) + w3_mn*eta_temp(i)  + w4_mn*eta_temp(j)
             END IF
         END DO
-        eta_deriv(i)  = sum_eta  + (gam(i)/(a(i)**2))*omega(i,k)*zeta_temp(i) 
-        zeta_deriv(i) = sum_zeta - (gam(i)/(a(i)**2))*omega(i,k)*eta_temp(i) 
+        eta_deriv(i)  = sum_eta  + (gam(i)/(a(i)**2))*omega_temp(i)*zeta_temp(i) 
+        zeta_deriv(i) = sum_zeta - (gam(i)/(a(i)**2))*omega_temp(i)*eta_temp(i) 
         sum_eta       = 0.d0
         sum_zeta      = 0.d0
     END DO
@@ -172,6 +194,7 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
     DEALLOCATE(z_temp)
     DEALLOCATE(eta_temp)
     DEALLOCATE(zeta_temp)
+    DEALLOCATE(omega_temp)
     DEALLOCATE(eta_deriv)
     DEALLOCATE(zeta_deriv)
 END FUNCTION vortex_deriv
@@ -361,7 +384,7 @@ SUBROUTINE calculate_singular_values(ii)
 !        WRITE(*,'("Singular Values"/(1F8.4))'), (s_array(i), i = 1, m)
         s(ii,nn) = s_array(1)
         DO j = 1, m
-            V(j,nn,ii) = VT(j,1)
+            V(j,nn,ii) = VT(1,j)
         !    WRITE(*,*) VT(j,1)
         END DO
     END DO
