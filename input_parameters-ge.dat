@@ -2,7 +2,7 @@
 ! Set nv and nvt to same value if not studying ground effect case
 ! Set nvt to 2*nv for ground effect configuration
 &CODE_DATA
-	nt    = 12000          !< # of time steps
+	nt    = 6000          !< # of time steps
   dtau  = 0.001          !< Size of time step
 	nv    = 2              !< # of vortices in real plane
 	nvt   = 4              !< # of vortices in ground-image system

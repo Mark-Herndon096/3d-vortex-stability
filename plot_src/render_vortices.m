@@ -1,6 +1,7 @@
 clc; clear all; close all;
 %% Script to render the perturbation trajectories of vortex system
 % Read in vortex trajectory data
+t_ind = 4750;
 dir = '../DATA/';
 fname = sprintf('%svortex_trajectories-GE-1000-005.x',dir);
 fid = fopen(fname,'r','ieee-le');
@@ -70,8 +71,8 @@ Zp = zeros(1,np);
 amp = zeros(nv,nt);
 
 for n = 1:nt
-    for k = 1:nv
-        amp(k,n) = 0.01*sqrt(eta(k,n)^2 + zeta(k,n)^2);
+    for j = 1:nv
+        amp(j,n) = 0.05*sqrt(eta(j,n)^2 + zeta(j,n)^2);
     end
 end
 
@@ -92,7 +93,7 @@ L2 = 1.5*L;
 [xx, yy] = meshgrid(-L2/k:0.1:L2/k); % Generate x and y data
 zz = zeros(size(xx, 1)); % Generate z data
 figure(1)
-for t_ind = 1:10:nt
+for t_ind = 1:30:nt
 clf;
 surf(xx, yy, zz), hold on
 shading interp
@@ -106,14 +107,14 @@ xlim([0 L/k])
 ylim([-2 2])
 zlim([0 5])
 grid on
-view(90,0)
-%view(110,9)
-m = 0.01;
+%view(90,0)
+view(100,9)
+m = 0.001;
 pause(m); 
 end
 
 %% Test
-t_ind = 1500;
+
 
 figure(2)
 plot3(x, y(1,:,t_ind), z(1,:,t_ind),'ro'), hold on

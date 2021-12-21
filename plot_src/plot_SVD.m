@@ -1,6 +1,6 @@
 %% Script to plot the perturbation trajectories of vortex system
 clc; clear all; close all;
-
+t_ind = 1000;
 dir = '../DATA/';
 fname = sprintf('%sperturbations_2-GE-1000-005.x',dir);
 fid = fopen(fname,'r','ieee-le');
@@ -23,7 +23,7 @@ kb = fread(fid,nk,'double');
 
 
 %% Plot trajectories
-t_ind = 4000;
+
 % for k = 1:nk
 %     s(k,t_ind) = log(s(k,t_ind))/tau(t_ind);
 % end
