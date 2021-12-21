@@ -35,6 +35,7 @@ PROGRAM main
 
 
     tstart = OMP_get_wtime()
+    !$OMP PARALLEL DO PRIVATE(tf, tend, jj, opts, k)
     DO k = 1, nk
         opts(2) = k
         DO jj = 1, m
@@ -43,8 +44,11 @@ PROGRAM main
             CALL calculate_singular_values(k)
         tend = OMP_get_wtime()
         tf   = tend - tstart
-        WRITE(*,'(A,I4,X,A,X,I4,3X,A,3X,F12.6,3X,A)') 'COMPLETED ITERATION ', k, '/',nk,'. . .', tf, 'SECONDS ELAPSED'
+        IF ( MOD(k,10) .EQ. 0 ) THEN
+            WRITE(*,'(A,I4,X,A,X,I4,3X,A,3X,F12.6,3X,A)') 'COMPLETED ITERATION ', k, '/',nk,'. . .', tf, 'SECONDS ELAPSED'
+        END IF
     END DO
+    !$OMP END PARALLEL DO
     
     CALL set_optimal_init
     opts(2) = k_ind

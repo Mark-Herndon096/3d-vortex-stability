@@ -2,7 +2,7 @@ clc; clear all; close all;
 %% Script to render the perturbation trajectories of vortex system
 % Read in vortex trajectory data
 dir = '../DATA/';
-fname = sprintf('%svortex_trajectories-GE-0100-005.x',dir);
+fname = sprintf('%svortex_trajectories-GE-1000-005.x',dir);
 fid = fopen(fname,'r','ieee-le');
 nv = fread(fid,1,'int');
 nt = fread(fid,1,'int');
@@ -19,7 +19,7 @@ tau = fread(fid,nt,'double');
 fprintf("Read in trajectory data\n");
 
 %% Read in perturbation data
-fname2 = sprintf('%sperturbations_3-GE-0100-005.x',dir);
+fname2 = sprintf('%sperturbations_3-GE-1000-005.x',dir);
 fid2 = fopen(fname2,'r','ieee-le');
 
 nv = fread(fid2,1,'int');
@@ -108,7 +108,7 @@ zlim([0 5])
 grid on
 view(90,0)
 %view(110,9)
-m = 0.15;
+m = 0.01;
 pause(m); 
 end
 
