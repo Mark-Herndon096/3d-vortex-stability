@@ -2,7 +2,7 @@
 clc; clear all; close all;
 
 dir = '../DATA/';
-fname = sprintf('%sperturbations_3-GE-0200-005.x',dir);
+fname = sprintf('%sperturbations_3-GE-0100-005.x',dir);
 fid = fopen(fname,'r','ieee-le');
 
 nv = fread(fid,1,'int');
@@ -34,5 +34,6 @@ plot(tau,zeta(2,:),'k-'), hold on
 xlabel('Tau')
 ylabel('Component amplitude')
 
-amp = sqrt(yz_perturb(1,900)^2 + yz_perturb(2,900)^2 + yz_perturb(3,900)^2 + yz_perturb(4,900)^2);
+t_ind = 1500;
+amp = sqrt(yz_perturb(1,t_ind)^2 + yz_perturb(2,t_ind)^2 + yz_perturb(3,t_ind)^2 + yz_perturb(4,t_ind)^2);
 fprintf('amp = %15.6f\n',amp);

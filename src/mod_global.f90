@@ -182,8 +182,12 @@ SUBROUTINE set_optimal_init
     IMPLICIT NONE
     INTEGER :: i, j
 
-    t_ind = nt!INT(4.5d0/0.001d0);
-    k_ind = MAXLOC(s(:,t_ind),1)    
+    !t_ind = INT(4.0d0/0.001d0);
+    WRITE(*,*) 'Enter t index: '
+    READ(*,*) t_ind
+    WRITE(*,*) 'Enter k index: '
+    READ(*,*) k_ind
+    !k_ind = MAXLOC(s(:,t_ind),1)    
     WRITE(*,*) ' k = ', kb(k_ind), ' at k_ind = ', k_ind, 't_ind = ', t_ind
 
     DO i = 1, nv

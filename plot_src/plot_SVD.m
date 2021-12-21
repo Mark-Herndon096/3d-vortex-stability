@@ -2,7 +2,7 @@
 clc; clear all; close all;
 
 dir = '../DATA/';
-fname = sprintf('%sperturbations_2-0200-005.x',dir);
+fname = sprintf('%sperturbations_2-GE-0100-005.x',dir);
 fid = fopen(fname,'r','ieee-le');
 
 nv = fread(fid,1,'int');
@@ -23,7 +23,7 @@ kb = fread(fid,nk,'double');
 
 
 %% Plot trajectories
-t_ind = 6000;
+t_ind = 1500;
 % for k = 1:nk
 %     s(k,t_ind) = log(s(k,t_ind))/tau(t_ind);
 % end

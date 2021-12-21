@@ -2,7 +2,7 @@ clc; clear all; close all;
 %% Script to render the perturbation trajectories of vortex system
 % Read in vortex trajectory data
 dir = '../DATA/';
-fname = sprintf('%svortex_trajectories-0200-005.x',dir);
+fname = sprintf('%svortex_trajectories-GE-0100-005.x',dir);
 fid = fopen(fname,'r','ieee-le');
 nv = fread(fid,1,'int');
 nt = fread(fid,1,'int');
@@ -19,7 +19,7 @@ tau = fread(fid,nt,'double');
 fprintf("Read in trajectory data\n");
 
 %% Read in perturbation data
-fname2 = sprintf('%sperturbations_3-0200-005.x',dir);
+fname2 = sprintf('%sperturbations_3-GE-0100-005.x',dir);
 fid2 = fopen(fname2,'r','ieee-le');
 
 nv = fread(fid2,1,'int');
@@ -58,7 +58,8 @@ fprintf("Calculated theta displacement for each vortex\n");
 %% Test section for plotting 3d sinusoidal line and rotating in global frame
 np = 1000;
 k = 0.73;
-x = linspace(0, 4*pi/k,np);
+L = 5*pi;
+x = linspace(0, L/k,np);
 
 y = zeros(nv,np,nt);
 z = zeros(nv,np,nt);
@@ -70,7 +71,7 @@ amp = zeros(nv,nt);
 
 for n = 1:nt
     for k = 1:nv
-        amp(k,n) = 0.05*sqrt(eta(k,n)^2 + zeta(k,n)^2);
+        amp(k,n) = 0.01*sqrt(eta(k,n)^2 + zeta(k,n)^2);
     end
 end
 
@@ -87,31 +88,32 @@ for n = 1:nt
 end
 
 %% plot
-[xx, yy] = meshgrid(-5*pi/k:0.1:5*pi/k); % Generate x and y data
+L2 = 1.5*L;
+[xx, yy] = meshgrid(-L2/k:0.1:L2/k); % Generate x and y data
 zz = zeros(size(xx, 1)); % Generate z data
 figure(1)
-for t_ind = 1:10:6000
+for t_ind = 1:10:nt
 clf;
 surf(xx, yy, zz), hold on
 shading interp
 colormap bone
-plot3(x, y(1,:,t_ind), z(1,:,t_ind),'ro'), hold on
-plot3(x, y(2,:,t_ind), z(2,:,t_ind),'bo'), hold on
+plot3(x, y(1,:,t_ind), z(1,:,t_ind),'bo','LineWidth',1.5), hold on
+plot3(x, y(2,:,t_ind), z(2,:,t_ind),'ro','LineWidth',1.5), hold on
 xlabel('x')
 ylabel('y')
 zlabel('z')
-xlim([0 4*pi/k])
-ylim([-3 3])
-zlim([0 5.5])
+xlim([0 L/k])
+ylim([-2 2])
+zlim([0 5])
 grid on
 view(90,0)
-%view(96,9)
-m = 0.01;
+%view(110,9)
+m = 0.15;
 pause(m); 
 end
 
 %% Test
-t_ind = 6000;
+t_ind = 1500;
 
 figure(2)
 plot3(x, y(1,:,t_ind), z(1,:,t_ind),'ro'), hold on

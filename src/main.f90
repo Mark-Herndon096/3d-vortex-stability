@@ -47,7 +47,7 @@ PROGRAM main
     END DO
     
     CALL set_optimal_init
-    opts(2) = 244
+    opts(2) = k_ind
         
     WRITE(*,*) 'yz_perturb(1,1) = ', yz_perturb(1,1)
     WRITE(*,*) 'yz_perturb(2,1) = ', yz_perturb(2,1)
