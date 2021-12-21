@@ -51,7 +51,7 @@ SUBROUTINE WRITE_SOLUTION_FILE(ii)
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: ii
     INTEGER :: zz
-    CHARACTER(LEN=60) :: fname_1, fname_2
+    CHARACTER(LEN=60) :: fname_1, fname_2, fname_3
     zz = INT(yz(1+nv,1));
     IF ( GE == .FALSE. ) THEN
         WRITE(fname_2,'("DATA/perturbations-",I4.4,"-",I3.3,".x")'), ii, zz
@@ -73,8 +73,8 @@ SUBROUTINE WRITE_SOLUTION_FILE(ii)
         WRITE(1) V
         CLOSE(1)
 
-        WRITE(fname_2,'("DATA/perturbations_3-",I4.4,"-",I3.3,".x")'), ii, zz
-        OPEN(1,FILE=fname_2,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
+        WRITE(fname_3,'("DATA/perturbations_3-",I4.4,"-",I3.3,".x")'), ii, zz
+        OPEN(1,FILE=fname_3,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
         WRITE(1) nv, nt, nk
         WRITE(1) tau
         WRITE(1) yz_perturb
@@ -100,8 +100,8 @@ SUBROUTINE WRITE_SOLUTION_FILE(ii)
         WRITE(1) V
         CLOSE(1)
 
-        WRITE(fname_2,'("DATA/perturbations_3-GE-",I4.4,"-",I3.3,".x")'), ii, zz
-        OPEN(1,FILE=fname_2,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
+        WRITE(fname_3,'("DATA/perturbations_3-GE-",I4.4,"-",I3.3,".x")'), ii, zz
+        OPEN(1,FILE=fname_3,FORM='UNFORMATTED',ACCESS='STREAM',STATUS='REPLACE',ACTION='WRITE')
         WRITE(1) nv, nt, nk
         WRITE(1) tau
         WRITE(1) yz_perturb

@@ -182,9 +182,9 @@ SUBROUTINE set_optimal_init
     IMPLICIT NONE
     INTEGER :: i, j
 
-    t_ind = INT(4.5d0/0.005d0);
+    t_ind = nt!INT(4.5d0/0.001d0);
     k_ind = MAXLOC(s(:,t_ind),1)    
-    WRITE(*,*) ' k = ', kb(k_ind), ' at k_ind = ', k_ind
+    WRITE(*,*) ' k = ', kb(k_ind), ' at k_ind = ', k_ind, 't_ind = ', t_ind
 
     DO i = 1, nv
         yz_perturb(i,1)    = V(i,t_ind,k_ind)

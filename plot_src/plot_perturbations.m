@@ -2,7 +2,7 @@
 clc; clear all; close all;
 
 dir = '../DATA/';
-fname = sprintf('%sperturbations_3-0500-005.x',dir);
+fname = sprintf('%sperturbations_3-GE-0200-005.x',dir);
 fid = fopen(fname,'r','ieee-le');
 
 nv = fread(fid,1,'int');
@@ -27,8 +27,8 @@ zeta(:,:) = yz_perturb(nv+1:2*nv,:);
 
 % plot
 figure(1)
-plot(tau,eta(1,:),'r-'), hold on
-plot(tau,zeta(1,:),'k-'), hold on
+plot(tau,eta(1,:),'r-o'), hold on
+plot(tau,zeta(1,:),'ko-'), hold on
 plot(tau,eta(2,:),'r-'), hold on
 plot(tau,zeta(2,:),'k-'), hold on
 xlabel('Tau')

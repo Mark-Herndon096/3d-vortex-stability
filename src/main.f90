@@ -122,6 +122,7 @@ FUNCTION vortex_deriv(x_0, m, h, ch, z_opts, num_opts)
         z_temp(i)    = yz(i+nv,n) + ch*(yz(i+nv,n+1)-yz(i+nv,n))/h 
         eta_temp(i)  = x_0(i)
         zeta_temp(i) = x_0(i+nv)
+        omega_temp(i)  =  omega(i,k)
     END DO
     
     !IF ( n .EQ. 1 ) THEN

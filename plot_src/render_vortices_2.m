@@ -46,8 +46,6 @@ fprintf("Read in perturbation data\n");
 
 %% Calculate theta for each vortex
 theta = zeros(nv,nt);
-zeta(:,:) = -zeta(:,:);
-eta(:,:) = -eta(:,:);
 for n = 1:nt
     for k = 1:nv
         theta(k,n) = atan(zeta(k,n)/eta(k,n));
