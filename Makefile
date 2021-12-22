@@ -7,8 +7,8 @@
 SRC_DIR = src
 GSL_DIR = GSL_INTERFACE
 # Need to compile GNU scientific library serparately and set path here
-#GSL_ROOT = /opt/GSL
-GSL_ROOT = /custom_builds/GSL
+GSL_ROOT = /opt/GSL
+#GSL_ROOT = /custom_builds/GSL
 export GSL_ROOT
 # Compiler (ifort, gfortran)
 FC = ifort

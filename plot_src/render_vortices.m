@@ -1,9 +1,11 @@
 clc; clear all; close all;
+global L_val k_val;
+
 %% Script to render the perturbation trajectories of vortex system
 % Read in vortex trajectory data
 t_ind = 4750;
 dir = '../DATA/';
-fname = sprintf('%svortex_trajectories-GE-1000-005.x',dir);
+fname = sprintf('%svortex_trajectories-GE-0200-005.x',dir);
 fid = fopen(fname,'r','ieee-le');
 nv = fread(fid,1,'int');
 nt = fread(fid,1,'int');
@@ -20,7 +22,7 @@ tau = fread(fid,nt,'double');
 fprintf("Read in trajectory data\n");
 
 %% Read in perturbation data
-fname2 = sprintf('%sperturbations_3-GE-1000-005.x',dir);
+fname2 = sprintf('%sperturbations_3-GE-0200-005.x',dir);
 fid2 = fopen(fname2,'r','ieee-le');
 
 nv = fread(fid2,1,'int');
@@ -60,6 +62,8 @@ fprintf("Calculated theta displacement for each vortex\n");
 np = 1000;
 k = 0.73;
 L = 5*pi;
+k_val = k;
+L_val = 1.5*L/k_val;
 x = linspace(0, L/k,np);
 
 y = zeros(nv,np,nt);
@@ -93,7 +97,7 @@ L2 = 1.5*L;
 [xx, yy] = meshgrid(-L2/k:0.1:L2/k); % Generate x and y data
 zz = zeros(size(xx, 1)); % Generate z data
 figure(1)
-for t_ind = 1:30:nt
+for t_ind = 1:10:nt
 clf;
 surf(xx, yy, zz), hold on
 shading interp
@@ -149,3 +153,13 @@ colormap bone
 figure(4)
 plot(tau,rad2deg(theta(1,:))), hold on
 plot(tau,rad2deg(theta(2,:)),'ro')
+
+%% 
+figure(1)
+for t_ind = 1:50:nt
+tubeplot([x; y(1,:,t_ind); z(1,:,t_ind)],0.05,32);
+tubeplot([x; y(2,:,t_ind); z(2,:,t_ind)],0.05,32);
+m = 0.0001;
+pause(m);
+clf;
+end

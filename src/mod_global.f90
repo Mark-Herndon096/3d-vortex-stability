@@ -199,7 +199,7 @@ SUBROUTINE set_optimal_init
     yz_perturb(2,1) =  0.528919076503061d0;
     yz_perturb(3,1) =  0.469302259222295d0;
     yz_perturb(4,1) =  0.469302259222295d0;
-    k_ind = 283;
+    !k_ind = 283;
     WRITE(*,*) '--------------------------------'    
     DO i = 1, 2*nv
         WRITE(*,*) yz_perturb(i,1)
